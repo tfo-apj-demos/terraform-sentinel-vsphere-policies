@@ -15,7 +15,7 @@ policy "restrict-vm-cpu-and-memory" {
     enforcement_level = "advisory"
 }
 
-/*policy "require-storage-drs" {
+policy "require-storage-drs" {
     source = "./require-storage-drs.sentinel"
     enforcement_level = "advisory"
 }
@@ -30,7 +30,7 @@ policy "restrict-virtual-disk-size-and-type" {
     enforcement_level = "advisory"
 }
 
-/*policy "restrict-vm-disk-size" {
+policy "restrict-vm-disk-size" {
     source = "./restrict-vm-disk-size.sentinel"
     enforcement_level = "advisory"
-}*/
+}
