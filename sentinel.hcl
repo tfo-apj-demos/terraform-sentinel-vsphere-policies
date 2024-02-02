@@ -34,3 +34,8 @@ policy "restrict-vm-disk-size" {
     source = "./restrict-vm-disk-size.sentinel"
     enforcement_level = "advisory"
 }
+
+policy "check-external-http-api" {
+    source = "./check-external-http-api.sentinel"
+    enforcement_level = "advisory"
+}
