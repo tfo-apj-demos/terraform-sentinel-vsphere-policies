@@ -1,0 +1,56 @@
+##### Imports #####
+import "http"
+import "json"
+import "encoding/base64"
+
+##### Parameters #####
+# Define parameter for vCenter API host
+param vcenter default "default-vcenter-api-host"
+
+# Define parameters for username and password
+param username default "default-username"
+param password default "default-password"
+
+##### Functions #####
+
+# Function to encode credentials for Basic Auth
+encode_credentials = func(username, password) {
+  credentials = "${username}:${password}"
+  encoded_credentials = base64.encode(credentials)
+  return encoded_credentials
+}
+
+
+
+# Function to obtain session ID using Basic Auth
+obtain_session_id = func(api_host, username, password) {
+  auth_endpoint = "https://${api_host}/rest/com/vmware/cis/session"
+  encoded_credentials = encode_credentials(username, password)
+
+auth_request = {
+  "method": "POST",
+  "url": auth_endpoint,
+  "header": {
+    "Authorization": ["Basic ${encoded_credentials}"],
+    "Content-Type": ["application/json"],
+  },
+}
+
+
+
+  auth_response = json.unmarshal(http.request(auth_request).body)
+  session_id = auth_response.value  # Adjust based on actual response structure
+  return session_id
+}
+
+
+# Placeholder for the function to obtain access token using the session ID
+# obtain_access_token function here...
+
+##### Main Logic #####
+
+# Obtain session ID using parameters for vCenter API host, username, and password
+session_id = obtain_session_id(vcenter, username, password)
+
+# Placeholder for obtaining access token and further logic
+# Use the access token for further API calls...
