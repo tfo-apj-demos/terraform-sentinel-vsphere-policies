@@ -1,17 +1,10 @@
-##### Imports #####
 import "http"
 import "json"
-import "encoding/base64"
 
-##### Parameters #####
-# Define parameter for vCenter API host
-param vcenter default "default-vcenter-api-host"
-
-# Define parameters for username and password
-param username default "default-username"
-param password default "default-password"
-
-##### Functions #####
+# Assuming these parameters are defined and available in your policy
+param vcenter
+param username
+param password
 
 # Function to encode credentials for Basic Auth
 encode_credentials = func(username, password) {
@@ -20,37 +13,37 @@ encode_credentials = func(username, password) {
   return encoded_credentials
 }
 
-
-
 # Function to obtain session ID using Basic Auth
 obtain_session_id = func(api_host, username, password) {
   auth_endpoint = "https://${api_host}/rest/com/vmware/cis/session"
   encoded_credentials = encode_credentials(username, password)
 
-auth_request = {
-  "method": "POST",
-  "url": auth_endpoint,
-  "header": {
-    "Authorization": ["Basic ${encoded_credentials}"],
-    "Content-Type": ["application/json"],
-  },
-}
+  auth_request = http.request(auth_endpoint).
+    with_header("Authorization", "Basic ${encoded_credentials}").
+    with_header("Content-Type", "application/json")
 
-
-
-  auth_response = json.unmarshal(http.request(auth_request).body)
-  session_id = auth_response.value  # Adjust based on actual response structure
+  auth_response = http.get(auth_request)
+  session_id = json.unmarshal(auth_response.body).value
   return session_id
 }
 
+# Function to obtain access token using the session ID
+obtain_access_token = func(session_id) {
+  token_endpoint = "https://${vcenter}/api/vcenter/authentication/token"
+  token_request_body = "grant_type=urn:ietf:params:oauth:grant-type:token-exchange&subject_token=${session_id}&subject_token_type=urn:ietf:params:oauth:token-type:access_token"
 
-# Placeholder for the function to obtain access token using the session ID
-# obtain_access_token function here...
+  token_request = http.request(token_endpoint).
+    with_header("Content-Type", "application/x-www-form-urlencoded").
+    with_header("vmware-api-session-id", session_id).
+    with_body(token_request_body)
 
-##### Main Logic #####
+  token_response = http.post(token_request)
+  access_token = json.unmarshal(token_response.body)["access_token"]
+  return access_token
+}
 
-# Obtain session ID using parameters for vCenter API host, username, and password
+# Main logic
 session_id = obtain_session_id(vcenter, username, password)
+access_token = obtain_access_token(session_id)
 
-# Placeholder for obtaining access token and further logic
-# Use the access token for further API calls...
+# Further logic to use access_token...
