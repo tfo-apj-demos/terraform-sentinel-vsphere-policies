@@ -1,0 +1,32 @@
+terraform_version = "1.15.3"
+
+variables = {}
+
+resource_changes = {
+	"vsphere_virtual_machine.web": {
+		"address": "vsphere_virtual_machine.web",
+		"change": {
+			"actions": [
+				"create",
+			],
+			"after": {
+				"name":         "prd-syd-web-01",
+				"num_cpus":     2,
+				"memory":       4096,
+				"annotation":   "Owner: app-team@example.com  CostCenter: CC-1234",
+				"datastore_id": "datastore-10",
+			},
+			"after_unknown": {},
+			"before":        null,
+		},
+		"deposed":        "",
+		"index":          null,
+		"mode":           "managed",
+		"module_address": "",
+		"name":           "web",
+		"provider_name":  "registry.terraform.io/vmware/vsphere",
+		"type":           "vsphere_virtual_machine",
+	},
+}
+
+output_changes = {}

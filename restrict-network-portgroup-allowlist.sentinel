@@ -1,0 +1,37 @@
+# Restricts vsphere_virtual_machine network_interface attachments to an
+# approved port-group allowlist. Prevents accidental cross-zone placement
+# (e.g. a DMZ VM landing on the internal management network).
+#
+# Replace the default allowlist with the real `vsphere_network` IDs from
+# your environment via params in sentinel.hcl.
+
+import "tfplan-functions" as plan
+
+param allowed_network_ids default [
+  "network-prod-app",
+  "network-prod-web",
+  "network-nonprod",
+]
+
+allVMs = plan.find_resources("vsphere_virtual_machine")
+
+violations = {}
+for allVMs as address, vm {
+  nics = plan.find_blocks(vm, "network_interface")
+  for nics as nic_index, nic {
+    nic_id = plan.evaluate_attribute(nic, "network_id") else ""
+    if nic_id is not "" and not (nic_id in allowed_network_ids) {
+      key = address + ".network_interface[" + string(nic_index) + "]"
+      violations[key] = key + " uses network_id '" + nic_id +
+        "' which is not in the approved port-group allowlist"
+    }
+  }
+}
+
+if length(violations) > 0 {
+  plan.print_violations(violations, "Network port-group")
+}
+
+main = rule {
+  length(violations) is 0
+}

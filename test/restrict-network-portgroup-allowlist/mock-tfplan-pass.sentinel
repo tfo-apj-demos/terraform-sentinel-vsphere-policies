@@ -1,0 +1,45 @@
+terraform_version = "1.15.3"
+
+variables = {}
+
+resource_changes = {
+	"vsphere_virtual_machine.web": {
+		"address": "vsphere_virtual_machine.web",
+		"change": {
+			"actions": [
+				"create",
+			],
+			"after": {
+				"name":         "prd-syd-web-01",
+				"num_cpus":     2,
+				"memory":       4096,
+				"annotation":   "Owner: app-team@example.com",
+				"datastore_id": "datastore-10",
+				"network_interface": [
+					{
+						"adapter_type":          "vmxnet3",
+						"bandwidth_limit":       -1,
+						"bandwidth_reservation": 0,
+						"bandwidth_share_count": 50,
+						"bandwidth_share_level": "normal",
+						"mac_address":           "<computed>",
+						"network_id":            "network-prod-app",
+						"ovf_mapping":           null,
+						"use_static_mac":        false,
+					},
+				],
+			},
+			"after_unknown": {},
+			"before":        null,
+		},
+		"deposed":        "",
+		"index":          null,
+		"mode":           "managed",
+		"module_address": "",
+		"name":           "web",
+		"provider_name":  "registry.terraform.io/vmware/vsphere",
+		"type":           "vsphere_virtual_machine",
+	},
+}
+
+output_changes = {}

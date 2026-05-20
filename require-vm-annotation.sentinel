@@ -1,0 +1,29 @@
+# Requires every vsphere_virtual_machine to carry a non-empty annotation.
+#
+# In an enterprise this is typically enriched by an upstream wrapper module
+# that injects owner email, cost-center, change ticket, and data class so
+# that downstream CMDB / chargeback / incident routing can attribute the
+# VM unambiguously. This policy is intentionally permissive on format
+# (only requires "not empty") so teams can adopt it before adopting a
+# strict schema.
+
+import "tfplan-functions" as plan
+
+allVMs = plan.find_resources("vsphere_virtual_machine")
+
+violations = {}
+for allVMs as address, vm {
+  annotation = plan.evaluate_attribute(vm, "annotation") else ""
+  if annotation is null or annotation is "" {
+    violations[address] = address +
+      " is missing a VM annotation (required for ownership/audit)"
+  }
+}
+
+if length(violations) > 0 {
+  plan.print_violations(violations, "VM annotation")
+}
+
+main = rule {
+  length(violations) is 0
+}

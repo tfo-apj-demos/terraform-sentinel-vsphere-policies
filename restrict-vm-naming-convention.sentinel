@@ -1,0 +1,19 @@
+# Enforces a hostname naming convention on every vsphere_virtual_machine.
+#
+# The default regex matches: <env>-<3-letter-site>-<role>-<2-digit-index>
+#   prd-syd-web-01   stg-mel-db-12   dev-iad-app-05
+#
+# Override the regex per policy set via params in sentinel.hcl.
+
+import "tfplan-functions" as plan
+
+param name_regex default "^(prd|stg|dev|tst)-[a-z]{3}-[a-z0-9-]+-[0-9]{2}$"
+
+allVMs = plan.find_resources("vsphere_virtual_machine")
+
+violatingVMs = plan.filter_attribute_does_not_match_regex(allVMs,
+               "name", name_regex, true)
+
+main = rule {
+  length(violatingVMs["messages"]) is 0
+}
